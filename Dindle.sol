@@ -20,6 +20,7 @@ contract Dindle{
 		mapping (address => uint) licensees; //0=dont ownn 1=licensed 2=selling
 		uint numOwners;
 		uint numLicensees;
+		address publisherAddress;
 	}
 
 	struct Owner{
@@ -47,16 +48,17 @@ contract Dindle{
 		string bookURL,
 		uint price,
 		uint resellPrice,
-		uint resellCommission
+		uint resellCommission,
+    address publisherAddress
 		) noether public returns (uint bookID)
 	{
 		bookID=numBooks++;
-		books[bookID]=Book(0,bookName,authorName, imageURL, bookURL, price, resellPrice, resellCommission,0,0);
+		books[bookID]=Book(0,bookName,authorName, imageURL, bookURL, price, resellPrice, resellCommission,0,0, publisherAddress);
 		Book b = books[bookID];
 // 		uint stake=100.0;
 		b.owners[msg.sender]=100;
 		b.numOwners=1;
-		b.licensees[msg.sender]=1;
+		b.licensees[msg.sender]=2;
 		b.numLicensees=1;
 	}
 
