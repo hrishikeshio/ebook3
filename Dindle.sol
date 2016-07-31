@@ -18,9 +18,11 @@ contract Dindle{
 		uint resellCommission;
 		mapping (address => uint) owners;
 		mapping (address => uint) licensees; //0=dont ownn 1=licensed 2=selling
+		address publisherAddress;
+		address[] resellers;
+		bool reselling;
 		uint numOwners;
 		uint numLicensees;
-		address publisherAddress;
 	}
 
 	struct Owner{
@@ -37,8 +39,10 @@ contract Dindle{
 
 	function Dindle (uint platformCommission) noether  {
 		uint totalBooks=0;
-		//register("a","a","a","a",1,1,1);
 		//platformCommission;
+		//preload some books
+		register("The legend of Simba","Jesus Christ","https://images-na.ssl-images-amazon.com/images/I/51Q0R48W6PL.jpg","https://images-na.ssl-images-amazon.com/images/I/51Q0R48W6PL.jpg",1,1,1,0x0);
+		register("Sin city","Frank miller","https://upload.wikimedia.org/wikipedia/en/d/da/Sin_City_Hard_Goodbye.jpg","https://upload.wikimedia.org/wikipedia/en/d/da/Sin_City_Hard_Goodbye.jpg",2,2,2,0x0);
 	}
 
 	function register (
@@ -49,10 +53,10 @@ contract Dindle{
 		uint price,
 		uint resellPrice,
 		uint resellCommission,
-    address publisherAddress
+        address publisherAddress
 		) noether public returns (uint bookID)
-	{
-		bookID=numBooks++;
+	{	bookID=numBooks;
+	    numBooks++;
 		books[bookID]=Book(0,bookName,authorName, imageURL, bookURL, price, resellPrice, resellCommission,0,0, publisherAddress);
 		Book b = books[bookID];
 // 		uint stake=100.0;
@@ -65,6 +69,9 @@ contract Dindle{
   function list(uint bookID) onlyLicensee(bookID)
   {
     books[bookID].licensees[msg.sender]=2;
+    books[bookID].resellers.push(msg.sender);
+    books[bookID].reselling=true;
+
   }
   function verifyLicense(uint bookID) constant public returns (uint license)
   {
@@ -88,7 +95,8 @@ contract Dindle{
   uint256 resellPrice,
   uint256 resellCommission,
   uint256 numOwners,
-  uint256 numLicensees)
+  uint256 numLicensees,
+  bool reselling)
 	{
 	    Book book=books[bookID];
 	    bookName=book.bookName;
@@ -100,6 +108,7 @@ contract Dindle{
 	    resellCommission=book.resellCommission;
 	    numOwners=book.numOwners;
 	    numLicensees=book.numLicensees;
+	    reselling=book.reselling;
 
 	}
 
@@ -111,8 +120,22 @@ contract Dindle{
 	    b.licensees[licenseeAddress_]=1;
 	    //b.licensees[serial]=Licensee(licenseeAddress_);
 
+	}	
+	function buy(uint bookID_)
+	{
+	    Book b = books[bookID_];
+	    b.licensees[msg.sender]=1;
+	    //b.licensees[serial]=Licensee(licenseeAddress_);
 	}
 
+	function buyUsed(uint bookID_)
+	{
+	    Book b = books[bookID_];
+	    b.licensees[b.resellers[0]]=0;
+	    delete b.resellers[0];
+	    b.licensees[msg.sender]=1;
+	    //b.licensees[serial]=Licensee(licenseeAddress_);
+	}
 	function resell(uint bookID_, address newLicenseeAddress_)
   {
 

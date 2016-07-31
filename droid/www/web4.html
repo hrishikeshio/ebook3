@@ -1,0 +1,155 @@
+<!doctype>
+<html>
+
+<head>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	  <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Blockchain ebook ownership</title>
+    <script type="text/javascript" src="web3.js"></script>
+    <script type="text/javascript" src="blockies.min.js"></script>
+
+</head>
+<body>
+
+    <div class="container theme-showcase" role="main">
+
+      <!-- Main jumbotron for a primary marketing message or call to action -->
+      <div class="jumbotron">
+
+	<h1>eBook Contract</h1>
+	Current Account:<div id ="iconTop"></div><div id="account"></div><br/>
+	<input type="button" class="btn btn-lg btn-primary" value="Switch Account" onclick="switchAccount();" />
+
+	<h2>Register Ownership</h2>
+	<form id="register">
+		<div class="form-group">
+            <label for="upload" > Upload file</label>
+         <input type="file" name="pic" accept="image/*">
+    		<label for="exampleInputEmail1">ISBN</label>
+    		<input class="form-control" id="ISBN1" placeholder="ISBN">
+  		</div>
+<div class="form-group">
+    		<label for="exampleInputEmail2">Serial</label>
+    		<input class="form-control" id="serial1" placeholder="Serial">
+  		</div>
+
+		Transaction ID:<div id="result1">.</div><br/>
+
+		<input type="button" class="btn btn-lg btn-primary" value="Submit" onclick="callRegister();" />
+	</form>
+
+	<h2>Check Ownership</h2>
+	<form id="checkOwnership2">
+	<form id="register">
+		<div class="form-group">
+
+    		<label for="exampleInputEmail1">ISBN</label>
+    		<input class="form-control" id="ISBN2" placeholder="ISBN">
+  		</div>
+<div class="form-group">
+    		<label for="exampleInputEmail2">Serial</label>
+    		<input class="form-control" id="serial2" placeholder="Serial">
+  		</div>		Result:<div id="result2">.</div><br/>
+
+		<input type="button" class="btn btn-lg btn-primary" value="Submit" onclick="callCheckOwnership();" />
+	</form>
+
+	<h2>Transfer</h2>
+	<form id="transfer">
+	<form id="register">
+		<div class="form-group">
+    		<label for="exampleInputEmail1">ISBN</label>
+    		<input class="form-control" id="ISBN3" placeholder="ISBN">
+  		</div>
+<div class="form-group">
+    		<label for="exampleInputEmail2">Serial</label>
+    		<input class="form-control" id="serial3" placeholder="Serial">
+  		</div>
+		<!-- from:<div id="currentAddress">.</div><br/> -->
+		
+<div class="form-group">
+    		<label for="exampleInputEmail3">To:</label>
+    		<input class="form-control" id="transferTo" placeholder="Transfer To">
+  		</div>
+		Transaction ID:<div id="result3">.</div><br/>
+		<input type="button" class="btn btn-lg btn-primary" value="Submit" onclick="callTransfer();" />
+	</form>
+	</div>
+	</div>
+
+	</body>
+<script type="text/javascript">
+var Web3 = require('web3');
+//var web3 = new Web3();
+if (typeof web3 !== 'undefined') {
+	var web3 = new Web3(web3.currentProvider);
+} else {
+  // set the provider you want from Web3.providers
+  var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+}
+web3.eth.defaultAccount = web3.eth.accounts[0];
+document.getElementById('account').innerText = web3.eth.defaultAccount;  	
+  
+var ABI=[{"constant":true,"inputs":[{"name":"","type":"bytes32"}],"name":"ownership","outputs":[{"name":"addr","type":"address"}],"type":"function"},{"constant":true,"inputs":[],"name":"_success","outputs":[{"name":"","type":"bool"}],"type":"function"},{"constant":true,"inputs":[],"name":"returnString","outputs":[{"name":"","type":"string"}],"type":"function"},{"constant":false,"inputs":[{"name":"identity","type":"bytes32"},{"name":"reciever","type":"address"}],"name":"transfer","outputs":[{"name":"_success","type":"bool"}],"type":"function"},{"constant":true,"inputs":[],"name":"returnInt","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":true,"inputs":[{"name":"identity","type":"bytes32"}],"name":"checkOwnership","outputs":[{"name":"","type":"address"}],"type":"function"},{"constant":false,"inputs":[{"name":"identity","type":"bytes32"}],"name":"register","outputs":[{"name":"_success","type":"bool"}],"type":"function"},{"inputs":[],"type":"constructor"}];
+
+var i=0;
+var contract = web3.eth.contract(ABI);
+var myContractInstance = contract.at('0xf4562a43addc8fd0dca83e9bbbb41d78a4e2e8b4');
+
+  //var coinbase = web3.eth.accounts[0];
+  //document.getElementById("currentAddress").innerText = coinbase;
+  function switchAccount(){
+  	if(i===0){
+  	web3.eth.defaultAccount = web3.eth.accounts[0];
+	document.getElementById('account').innerText = web3.eth.defaultAccount;  	
+  	i=1;
+  }
+  else
+  {
+  	web3.eth.defaultAccount = web3.eth.accounts[1];
+  	document.getElementById('account').innerText = web3.eth.defaultAccount;  
+
+  i=0;
+}
+var icon = blockies.create({ // All options are optional
+    seed: web3.eth.defaultAccount // seed used to generate icon data, default: random
+    });
+document.getElementById("iconTop").appendChild(icon);  
+  }
+  function callRegister() {
+        // this should be generated by ethereum
+        var ISBN =document.getElementById('ISBN1').value;
+        var serial =document.getElementById('serial1').value;
+	    var identity=web3.sha3(ISBN+serial);    // call the contract
+	        var res = myContractInstance.register(identity);
+	        console.log(res);
+	        document.getElementById('result1').innerText = res.toString(10);
+	    }
+
+  function callCheckOwnership() {
+        // this should be generated by ethereum
+        var ISBN =document.getElementById('ISBN2').value;
+        var serial =document.getElementById('serial2').value;
+	        // call the contract
+	    var identity=web3.sha3(ISBN+serial);
+	        var res = myContractInstance.checkOwnership(identity);
+	        console.log(res);
+	        document.getElementById('result2').innerText = res;
+	    }	    
+  function callTransfer() {
+        // this should be generated by ethereum
+        var ISBN =document.getElementById('ISBN3').value;
+        var serial =document.getElementById('serial3').value;
+        var transferTo =document.getElementById('transferTo').value;
+	    var identity=web3.sha3(ISBN+serial);    // call the contract
+	        var res = myContractInstance.transfer(identity,transferTo);
+	        console.log(res);
+	        document.getElementById('result3').innerText = res.toString(10);
+	    }	    
+	</script>
+
+	</html>

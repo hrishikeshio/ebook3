@@ -1,0 +1,114 @@
+<!doctype>
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <title>Blockchain ebook ownership</title>
+  <script type="text/javascript" src="web3.js"></script>
+
+</head>
+<body>
+
+  <div class="container theme-showcase" role="main">
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+
+      <h2>Dindle</h2>
+      Current Account:<div id ="iconTop"></div><div id="account"></div><br/>
+      <input type="button" class="btn btn-lg btn-primary" value="Switch Account" onclick="switchAccount();" />
+
+      <h2>Library</h2>
+      <div class="row">
+        <div id=books>
+        </div>
+      </div>
+<br/>
+<br/>
+<br/>
+<br/>
+      <div class="footer">
+        <a href="library.html">Library</a>
+        | <a href="buy.html">Store</a>
+      | <a href="sell.html">Sell</a>
+      | <a href="publish.html">Publish new book</a>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+<script type="text/javascript">
+var Web3 = require('web3');
+//var web3 = new Web3();
+if (typeof web3 !== 'undefined') {
+  var web3 = new Web3(web3.currentProvider);
+} else {
+  // set the provider you want from Web3.providers
+  var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+}
+web3.eth.defaultAccount = web3.eth.accounts[0];
+document.getElementById('account').innerText = web3.eth.defaultAccount;
+
+var ABI=[{"constant":false,"inputs":[{"name":"bookName","type":"string"},{"name":"authorName","type":"string"},{"name":"imageURL","type":"string"},{"name":"price","type":"uint256"}],"name":"register","outputs":[{"name":"bookID","type":"uint256"}],"type":"function"},{"constant":true,"inputs":[{"name":"bookID","type":"uint256"}],"name":"verifyLicense","outputs":[{"name":"license","type":"uint256"}],"type":"function"},{"constant":true,"inputs":[{"name":"listingID","type":"uint256"}],"name":"getListing","outputs":[{"name":"bookID","type":"uint256"},{"name":"isNew","type":"bool"},{"name":"price","type":"uint256"},{"name":"seller","type":"address"},{"name":"bookName","type":"string"},{"name":"authorName","type":"string"},{"name":"imageURL","type":"string"},{"name":"numOwners","type":"uint256"},{"name":"numLicensees","type":"uint256"}],"type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"books","outputs":[{"name":"bookName","type":"string"},{"name":"authorName","type":"string"},{"name":"imageURL","type":"string"},{"name":"price","type":"uint256"},{"name":"numOwners","type":"uint256"},{"name":"numLicensees","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"bookID","type":"uint256"}],"name":"list","outputs":[],"type":"function"},{"constant":true,"inputs":[],"name":"getNumberOfBooks","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":true,"inputs":[],"name":"getNumberOfListings","outputs":[{"name":"","type":"uint256"}],"type":"function"},{"constant":false,"inputs":[{"name":"listingID","type":"uint256"}],"name":"buyUsed","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"listingID","type":"uint256"}],"name":"buy","outputs":[],"type":"function"},{"constant":true,"inputs":[{"name":"bookID","type":"uint256"}],"name":"verifyOwnership","outputs":[{"name":"ownership","type":"uint256"}],"type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"listings","outputs":[{"name":"bookID","type":"uint256"},{"name":"isNew","type":"bool"},{"name":"price","type":"uint256"},{"name":"seller","type":"address"}],"type":"function"},{"constant":true,"inputs":[{"name":"bookID","type":"uint256"}],"name":"getBook","outputs":[{"name":"bookName","type":"string"},{"name":"authorName","type":"string"},{"name":"imageURL","type":"string"},{"name":"price","type":"uint256"},{"name":"numOwners","type":"uint256"},{"name":"numLicensees","type":"uint256"}],"type":"function"},{"inputs":[{"name":"platformCommission","type":"uint256"}],"type":"constructor"}]
+;
+var i=0;
+var Dindle = web3.eth.contract(ABI);
+var dindle = Dindle.at("0x35b802b7a874701211781127f72efc1d3c7586bf");
+listBooks();
+//var coinbase = web3.eth.accounts[0];
+//document.getElementById("currentAddress").innerText = coinbase;
+function switchAccount(){
+  if(i===0){
+    web3.eth.defaultAccount = web3.eth.accounts[0];
+    document.getElementById('account').innerText = web3.eth.defaultAccount;
+    i=1;
+  }
+  else if (i===1){
+
+    web3.eth.defaultAccount = web3.eth.accounts[1];
+    document.getElementById('account').innerText = web3.eth.defaultAccount;
+    i=2;
+  }
+  else{
+    web3.eth.defaultAccount = web3.eth.accounts[2];
+    document.getElementById('account').innerText = web3.eth.defaultAccount;
+
+    i=0;
+  }
+listBooks();
+}
+function listBooks()
+{
+  var totalBooks = dindle.getNumberOfBooks().toNumber();
+  console.log(totalBooks);
+  for(i=0; i<10; i++) {
+    if(document.getElementById("booklist")!=undefined)
+    {
+      document.getElementById("booklist").outerHTML=''; 
+    }
+  }
+    for(var i=0; i<totalBooks; i++) {
+    getBook(i);
+  }
+}
+function getBook(bookID) {
+    license=dindle.verifyLicense(bookID).toNumber()>0;
+    console.log(license);
+    if (license) {
+    var res = dindle.getBook(bookID);
+    document.getElementById("books").insertAdjacentHTML( 'afterbegin', '<div id="booklist" class="col-sm-2 col-lg-2 col-md-2"/><img height="200px" width="120px" src="'+
+    res[2]+'" alt=""> </div>' );
+  //  document.getElementById('result_verifyLicense').innerText = res.toString(10);
+}
+}
+</script>
+
+</html>
