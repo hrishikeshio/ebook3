@@ -52,7 +52,7 @@ if (typeof web3 !== 'undefined') {
   var web3 = new Web3(web3.currentProvider);
 } else {
   // set the provider you want from Web3.providers
-  var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+  var web3 = new Web3(new Web3.providers.HttpProvider("http://65.52.189.129:8545"));
 }
 web3.eth.defaultAccount = web3.eth.accounts[0];
 document.getElementById('account').innerText = web3.eth.defaultAccount;
@@ -62,7 +62,7 @@ var ABI=[{"constant":false,"inputs":[{"name":"bookName","type":"string"},{"name"
 ;
 var i=0;
 var Dindle = web3.eth.contract(ABI);
-var dindle = Dindle.at("0x35b802b7a874701211781127f72efc1d3c7586bf");
+var dindle = Dindle.at("0x8322b607f7872eca33f4d52a78101ad10410f6af");
 listBooks();
 //var coinbase = web3.eth.accounts[0];
 //document.getElementById("currentAddress").innerText = coinbase;

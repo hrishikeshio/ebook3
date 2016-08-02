@@ -33,12 +33,15 @@
           <div id="prev" onclick="Book.prevPage();" class="arrow">‹</div>
           <div id="area"></div>
           <div id="next" onclick="Book.nextPage();" class="arrow">›</div>
+          <div id="back" onclick="library();" class="back">Back</div>
         </div>
 
         <script>
 
             Book.renderTo("area");
-
+            function library() {
+              window.open("library.html",'_self',false);
+            }
         </script>
     </body>
 </html>
