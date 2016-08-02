@@ -12,6 +12,7 @@ contract Dindle{
 		string bookName;
 		string authorName;
 		string imageURL;
+		string bookURL;
 		uint price;
 		mapping (address => uint) owners;
 		mapping (address => uint) licensees; //0=dont ownn 1=licensed 2=selling
@@ -27,8 +28,8 @@ contract Dindle{
 	}
 
 	function Dindle (uint platformCommission) noether  {
-		register("The legend of Simba","Jesus Christ","https://images-na.ssl-images-amazon.com/images/I/51Q0R48W6PL.jpg",1);
-		register("Sin city","Frank miller","https://upload.wikimedia.org/wikipedia/en/d/da/Sin_City_Hard_Goodbye.jpg",2);
+		register("The Adventures of Sherlock Holmes","Aurthur Conan Doyle","http://images.contentreserve.com/ImageType-100/1785-1/%7B24168643-5E3F-497D-A948-8BEC7B3D80CC%7DImg100.jpg","epubs/sherlock.epub",11);
+		register("Alice in Wonderland","Lewis Carroll","https://www.panmacmillan.com/panmacmillancorporatesite/media/panmacmillan/Cover%20Images/Lewis-Carroll/9781447279990Alice-s%20Adventures%20in%20Wonderland.jpg?ext=jpg","epubs/alice.epub",3);
 		list(1);
 	}
 
@@ -36,11 +37,12 @@ contract Dindle{
 		string bookName,
 		string authorName,
 		string imageURL,
+		string bookURL,
 		uint price
 		) noether public returns (uint bookID)
 	{	bookID=numBooks;
 		numBooks++;
-		books[bookID]=Book(bookName,authorName, imageURL, 
+		books[bookID]=Book(bookName,authorName, imageURL, bookURL, 
 			price, 0,0);
 		uint listingID=numListings;
 		numListings++;
@@ -97,6 +99,7 @@ contract Dindle{
 	(string bookName,
 		string authorName,
 		string imageURL,
+		string bookURL,
 		uint256 price,
 		uint256 numOwners,
 		uint256 numLicensees)
@@ -105,6 +108,7 @@ contract Dindle{
 		bookName=book.bookName;
 		authorName=book.authorName;
 		imageURL=book.imageURL;
+		bookURL=book.bookURL;
 		price=book.price;
 		numOwners=book.numOwners;
 		numLicensees=book.numLicensees;
@@ -118,6 +122,7 @@ contract Dindle{
 		string bookName,
 		string authorName,
 		string imageURL,
+		string bookURL,
 		uint256 numOwners,
 		uint256 numLicensees)
 	{	Listing l = listings[listingID];
@@ -129,6 +134,7 @@ contract Dindle{
 		bookName=book.bookName;
 		authorName=book.authorName;
 		imageURL=book.imageURL;
+		bookURL=book.bookURL;
 		price=book.price;
 		numOwners=book.numOwners;
 		numLicensees=book.numLicensees;

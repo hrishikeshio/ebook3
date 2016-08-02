@@ -57,7 +57,8 @@ contract Dindle{
 		) noether public returns (uint bookID)
 	{	bookID=numBooks;
 	    numBooks++;
-		books[bookID]=Book(0,bookName,authorName, imageURL, bookURL, price, resellPrice, resellCommission,0,0, publisherAddress);
+		books[bookID]=Book(0,bookName,authorName, imageURL, bookURL, 
+			price, resellPrice, resellCommission,0,0, publisherAddress,[], false, 0,0);
 		Book b = books[bookID];
 // 		uint stake=100.0;
 		b.owners[msg.sender]=100;
