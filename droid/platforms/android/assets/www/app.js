@@ -1,4 +1,4 @@
-var local= true;
+var local= false;
 var Web3 = require('web3');
 //var web3 = new Web3();
 if (typeof web3 !== 'undefined') {
@@ -26,6 +26,6 @@ var dindle = Dindle.at("0x0766cdf020b7efcb677ddbdd84ee9cff3a7ee5b4");
 }
 else
 {
-var dindle = Dindle.at("0x8322b607f7872eca33f4d52a78101ad10410f6af");	
+var dindle = Dindle.at("0x645ce608b1b0350d4a4f05d018ab7fa99aac2df9");	
 }
 }
