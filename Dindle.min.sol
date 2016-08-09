@@ -14,8 +14,10 @@ contract Dindle{
 		string imageURL;
 		string bookURL;
 		uint price;
-		mapping (address => uint) owners;
+		// mapping (address => uint) owners;
 		mapping (address => uint) licensees; //0=dont ownn 1=licensed 2=selling
+		address owner;
+		address publisher;
 		uint numOwners;
 		uint numLicensees;
 	}
@@ -28,8 +30,8 @@ contract Dindle{
 	}
 
 	function Dindle (uint platformCommission) noether  {
-		register("The Adventures of Sherlock Holmes","Aurthur Conan Doyle","http://images.contentreserve.com/ImageType-100/1785-1/%7B24168643-5E3F-497D-A948-8BEC7B3D80CC%7DImg100.jpg","http://65.52.189.129/epub/sherlock.epub",11);
-		register("Alice in Wonderland","Lewis Carroll","https://www.panmacmillan.com/panmacmillancorporatesite/media/panmacmillan/Cover%20Images/Lewis-Carroll/9781447279990Alice-s%20Adventures%20in%20Wonderland.jpg?ext=jpg","http://65.52.189.129/epub/alice.epub",3);
+		register("The Adventures of Sherlock Holmes","Aurthur Conan Doyle","http://images.contentreserve.com/ImageType-100/1785-1/%7B24168643-5E3F-497D-A948-8BEC7B3D80CC%7DImg100.jpg","http://65.52.189.129/epub/sherlock.epub",1,0x0);
+		register("Alice in Wonderland","Lewis Carroll","https://www.panmacmillan.com/panmacmillancorporatesite/media/panmacmillan/Cover%20Images/Lewis-Carroll/9781447279990Alice-s%20Adventures%20in%20Wonderland.jpg?ext=jpg","http://65.52.189.129/epub/alice.epub",3,0x0);
 		list(1);
 	}
 
@@ -38,19 +40,30 @@ contract Dindle{
 		string authorName,
 		string imageURL,
 		string bookURL,
-		uint price
+		uint price,
+		address publisher
 		) noether public returns (uint bookID)
 	{	bookID=numBooks;
 		numBooks++;
+		address owner = msg.sender;
 		books[bookID]=Book(bookName,authorName, imageURL, bookURL, 
-			price, 0,0);
+			price, owner, publisher,0,0);
 		uint listingID=numListings;
 		numListings++;
 		listings[listingID]=Listing(bookID, true, price,msg.sender );
 		Book b = books[bookID];
 		// 		uint stake=100.0;
-		b.owners[msg.sender]=100;
-		b.numOwners=1;
+		// if (publisher!=0x0)
+		// {
+		// 	b.owners[msg.sender]=100;
+		// 	b.numOwners=1;
+		// }
+		// else
+		// {
+		// 	b.owners[msg.sender]=80;
+		// 	b.owners[publisher]=20;
+		// 	b.numOwners=2;
+		// }
 		b.licensees[msg.sender]=2;
 		b.numLicensees=1;
 	}
@@ -60,6 +73,11 @@ contract Dindle{
 		Listing l = listings[listingID];
 		Book b = books[l.bookID];
 		b.licensees[msg.sender]=1;
+		if (b.publisher!=0x0)
+		{
+			b.publisher.send(msg.value/5);
+			b.owner.send(msg.value/2);
+		}
 		//b.licensees[serial]=Licensee(licenseeAddress_);
 	}
 
@@ -70,6 +88,11 @@ contract Dindle{
 		b.licensees[msg.sender]=1;
 		delete listings[listingID];
 		//b.licensees[serial]=Licensee(licenseeAddress_);
+		{
+			b.publisher.send(msg.value/5);
+			b.owner.send(msg.value/2);
+			l.seller.send(msg.value/5);
+		}
 	}
 
 	function list(uint bookID) onlyLicensee(bookID)
@@ -84,7 +107,12 @@ contract Dindle{
 	}
 	function verifyOwnership(uint bookID) constant public returns (uint ownership)
 	{
-		ownership=books[bookID].owners[msg.sender];
+		if(books[bookID].owner==msg.sender) {
+			ownership=1;
+			} else {
+			ownership=0;
+			}
+		// ownership=books[bookID].owners[msg.sender];
 	}
 	function getNumberOfBooks() constant public returns(uint256)
 	{
@@ -102,7 +130,9 @@ contract Dindle{
 		string bookURL,
 		uint256 price,
 		uint256 numOwners,
-		uint256 numLicensees)
+		uint256 numLicensees,
+		address owner,
+		address publisher)
 	{
 		Book book=books[bookID];
 		bookName=book.bookName;
@@ -112,7 +142,8 @@ contract Dindle{
 		price=book.price;
 		numOwners=book.numOwners;
 		numLicensees=book.numLicensees;
-
+		owner=book.owner;
+		publisher=book.publisher;
 	}
 	function getListing(uint listingID) constant public returns
 	(uint bookID,
@@ -124,7 +155,8 @@ contract Dindle{
 		string imageURL,
 		string bookURL,
 		uint256 numOwners,
-		uint256 numLicensees)
+		uint256 numLicensees
+)
 	{	Listing l = listings[listingID];
 		bookID=l.bookID;
 		isNew=l.isNew;
@@ -140,3 +172,6 @@ contract Dindle{
 		numLicensees=book.numLicensees;
 	}
 }
+
+//1739.3762205121413,982.41498,0
+//1730.9860205121413,981.06148,0
